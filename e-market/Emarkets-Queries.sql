@@ -242,3 +242,194 @@ FROM
     `emarket`.`facturas`
 WHERE
     EmpleadoID = 5;
+
+-- -----------------------------------------------
+-- Consultas queries XL parte I - GROUP BY
+-- -----------------------------------------------
+-- Clientes:
+-- ¿Cuántos clientes existen?
+SELECT 
+    COUNT(*)
+FROM
+    `clientes`;
+-- ¿Cuántos clientes hay por ciudad?
+SELECT 
+    ciudad, COUNT(*)
+FROM
+    `clientes`
+GROUP BY ciudad;
+-- Facturas:
+-- ¿Cuál es el total de transporte?
+SELECT 
+    SUM(Transporte)
+FROM
+    `emarket`.`facturas`;
+-- ¿Cuál es el total de transporte por EnvioVia (empresa de envío)?
+SELECT 
+    EnvioVia, SUM(Transporte)
+FROM
+    `emarket`.`facturas`
+GROUP BY EnvioVia;
+-- Calcular la cantidad de facturas por cliente. Ordenar descendentemente por
+-- cantidad de facturas.
+SELECT 
+    ClienteID, COUNT(FacturaID)
+FROM
+    `emarket`.`facturas`
+GROUP BY ClienteID
+ORDER BY COUNT(FacturaID) DESC;
+-- Obtener el Top 5 de clientes de acuerdo a su cantidad de facturas.
+SELECT 
+    ClienteID, COUNT(FacturaID)
+FROM
+    `emarket`.`facturas`
+GROUP BY ClienteID
+ORDER BY COUNT(FacturaID) DESC
+LIMIT 5;
+-- ¿Cuál es el país de envío menos frecuente de acuerdo a la cantidad de facturas?
+SELECT 
+    PaisEnvio, COUNT(PaisEnvio)
+FROM
+    `emarket`.`facturas`
+GROUP BY PaisEnvio
+ORDER BY COUNT(PaisEnvio)
+LIMIT 1;
+-- Se quiere otorgar un bono al empleado con más ventas. ¿Qué ID de empleado
+-- realizó más operaciones de ventas?
+SELECT 
+    EmpleadoID, COUNT(EmpleadoID)
+FROM
+    `emarket`.`facturas`
+GROUP BY EmpleadoID
+ORDER BY COUNT(EmpleadoID) DESC
+LIMIT 1;
+-- Factura detalle:
+-- ¿Cuál es el producto que aparece en más líneas de la tabla Factura Detalle?
+SELECT 
+    ProductoID, SUM(ProductoID)
+FROM
+    `emarket`.`facturadetalle`
+GROUP BY ProductoID
+ORDER BY SUM(ProductoID) DESC
+LIMIT 1;
+-- ¿Cuál es el total facturado? Considerar que el total facturado es la suma de
+-- cantidad por precio unitario.
+SELECT 
+    SUM(PrecioUnitario * Cantidad) "Total facturado"
+FROM
+    `emarket`.`facturadetalle`;
+-- ¿Cuál es el total facturado para los productos ID entre 30 y 50?
+SELECT 
+    SUM(PrecioUnitario * Cantidad) 'Total facturado'
+FROM
+    `emarket`.`facturadetalle`
+WHERE
+    ProductoID BETWEEN 30 AND 50;
+-- ¿Cuál es el precio unitario promedio de cada producto?
+SELECT 
+    ProductoID, AVG(PrecioUnitario) 'Precio promedio'
+FROM
+    `emarket`.`facturadetalle`
+GROUP BY ProductoID;
+-- ¿Cuál es el precio unitario máximo?
+SELECT 
+     MAX(PrecioUnitario) 'Precio maximo'
+FROM
+    `emarket`.`facturadetalle`;
+-- -----------------------------------------------
+-- Consultas queries XL parte II - JOIN
+-- -----------------------------------------------
+-- Generar un listado de todas las facturas del empleado 'Buchanan'.
+SELECT 
+    facturas.FacturaID,
+    empleados.Apellido
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    empleados ON facturas.EmpleadoID = empleados.EmpleadoID
+WHERE
+    empleados.Apellido = 'Buchanan';
+-- Generar un listado con todos los campos de las facturas del correo 'Speedy Express'.
+SELECT 
+    correos.Compania, facturas.*
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    correos ON facturas.EnvioVia = correos.CorreoID
+WHERE
+    correos.Compania = 'Speedy Express';
+-- Generar un listado de todas las facturas con el nombre y apellido de los empleados.
+SELECT 
+    facturas.FacturaID, empleados.Nombre, empleados.Apellido
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    empleados ON facturas.EmpleadoID = empleados.EmpleadoID;
+-- Mostrar un listado de las facturas de todos los clientes “Owner” y país de envío “USA”.
+SELECT 
+    facturas.FacturaID, clientes.Titulo, clientes.Pais
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    clientes ON facturas.ClienteID = clientes.ClienteID
+WHERE
+    clientes.Titulo = 'Owner'
+        AND clientes.Pais = 'USA';
+-- Mostrar todos los campos de las facturas del empleado cuyo apellido sea
+-- “Leverling” o que incluyan el producto id = “42”.
+SELECT 
+    empleados.Apellido, facturadetalle.ProductoID, facturas.*
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    empleados ON facturas.EmpleadoID = empleados.EmpleadoID
+        INNER JOIN
+    facturadetalle ON facturas.FacturaID = facturadetalle.FacturaID
+WHERE
+    empleados.Apellido = 'Leverling'
+        OR facturadetalle.ProductoID = 42;
+-- Mostrar todos los campos de las facturas del empleado cuyo apellido sea
+-- “Leverling” y que incluya los producto id = “80” o ”42”.
+SELECT 
+    empleados.Apellido, facturadetalle.ProductoID, facturas.*
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    empleados ON facturas.EmpleadoID = empleados.EmpleadoID
+        INNER JOIN
+    facturadetalle ON facturas.FacturaID = facturadetalle.FacturaID
+WHERE
+    empleados.Apellido = 'Leverling'
+        AND facturadetalle.ProductoID IN (80 , 42);
+-- Generar un listado con los cinco mejores clientes, según sus importes de
+-- compras total (PrecioUnitario * Cantidad).
+SELECT 
+    clientes.Contacto,
+    SUM(facturadetalle.PrecioUnitario * facturadetalle.Cantidad) AS Total_compras
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    clientes ON facturas.ClienteID = clientes.ClienteID
+        INNER JOIN
+    facturadetalle ON facturas.FacturaID = facturadetalle.FacturaID
+GROUP BY clientes.Contacto
+ORDER BY Total_compras DESC
+LIMIT 5;
+-- Generar un listado de facturas, con los campos id, nombre y apellido del cliente,
+-- fecha de factura, país de envío, Total, ordenado de manera descendente por
+-- fecha de factura y limitado a 10 filas.
+SELECT 
+    clientes.ClienteID,
+    clientes.Contacto,
+    facturas.FechaFactura,
+    facturas.PaisEnvio,
+    SUM(facturadetalle.PrecioUnitario * facturadetalle.Cantidad) AS Total
+FROM
+    `emarket`.`facturas`
+        INNER JOIN
+    clientes ON facturas.ClienteID = clientes.ClienteID
+        INNER JOIN
+    facturadetalle ON facturas.FacturaID = facturadetalle.FacturaID
+GROUP BY facturas.FacturaID
+ORDER BY facturas.FechaFactura DESC
+LIMIT 10;

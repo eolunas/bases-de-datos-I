@@ -59,3 +59,27 @@ FROM
     musimundos.albumes
 WHERE
     titulo LIKE '_l%';
+
+-- ---------------------------------------------------------------------
+-- Ejercicios PLAYGROUND Table Reference
+-- ---------------------------------------------------------------------
+-- una consulta en la base de datos donde muestre todos los registros 
+-- que contengan canciones con sus géneros, Y que el compositor sea 
+-- Willie Dixon, Y que tengan el género Blues.
+SELECT 
+    `canciones`.`compositor`,
+    `canciones`.`nombre`,
+    `generos`.`nombre`
+FROM
+    `musimundos`.`canciones`,
+    `musimundos`.`generos`
+WHERE
+    id_genero = generos.id
+        AND compositor LIKE 'Willie%'
+        AND generos.nombre = 'Blues';
+
+
+
+
+
+
