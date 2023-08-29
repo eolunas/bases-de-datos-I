@@ -1,7 +1,8 @@
+-- --------------------------------------------------------------------------------
 -- Consultas queries ML - Parte I:
--- -----------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Categorias y productos:
--- -----------------------------------------------
+
 -- Queremos tener un listado de todas las categorías.
 SELECT 
     *
@@ -56,9 +57,9 @@ FROM
     `emarket`.`productos`
 WHERE
     UnidadesPedidas = 0;
--- -----------------------------------------------
+    
 -- Clientes:
--- -----------------------------------------------
+
 -- Obtener un listado de todos los clientes con Contacto, Compania, Título, País. 
 -- Ordenar el listado por País.
 SELECT 
@@ -83,9 +84,8 @@ FROM
 WHERE
     Contacto LIKE 'C%';
 
--- -----------------------------------------------
 -- Facturas:
--- -----------------------------------------------
+
 -- Obtener un listado de todas las facturas, ordenado por fecha de factura ascendente.
 SELECT 
     *
@@ -115,10 +115,11 @@ FROM
 WHERE
     EmpleadoID IN (2 , 3, 5, 8, 9);
 
+-- --------------------------------------------------------------------------------
 -- Consultas queries ML - Parte II:
--- -----------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Productos:
--- -----------------------------------------------
+
 -- Obtener el listado de todos los productos ordenados descendentemente por precio unitario.
 SELECT 
     *
@@ -140,9 +141,8 @@ FROM
 ORDER BY UnidadesStock DESC
 LIMIT 10;
 
--- -----------------------------------------------
 -- FacturaDetalle:
--- -----------------------------------------------
+
 -- Obtener un listado de FacturaID, Producto, Cantidad.
 SELECT 
     FacturaID, ProductoID, Cantidad
@@ -173,9 +173,8 @@ SELECT
 FROM
     `emarket`.`facturadetalle`;
     
--- -----------------------------------------------
 -- EXTRAS:
--- -----------------------------------------------
+
 -- Obtener un listado de todos los clientes que viven en “Brazil" o “Mexico”,
 -- o que tengan un título que empiece con “Sales”.
 SELECT 
@@ -243,9 +242,9 @@ FROM
 WHERE
     EmpleadoID = 5;
 
--- -----------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Consultas queries XL parte I - GROUP BY
--- -----------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Clientes:
 -- ¿Cuántos clientes existen?
 SELECT 
@@ -336,9 +335,10 @@ SELECT
      MAX(PrecioUnitario) 'Precio maximo'
 FROM
     `emarket`.`facturadetalle`;
--- -----------------------------------------------
+    
+-- --------------------------------------------------------------------------------
 -- Consultas queries XL parte II - JOIN
--- -----------------------------------------------
+-- --------------------------------------------------------------------------------
 -- Generar un listado de todas las facturas del empleado 'Buchanan'.
 SELECT 
     facturas.FacturaID,
@@ -433,3 +433,105 @@ FROM
 GROUP BY facturas.FacturaID
 ORDER BY facturas.FechaFactura DESC
 LIMIT 10;
+
+-- --------------------------------------------------------------------------------
+-- Joins - Consignas I y II.
+-- --------------------------------------------------------------------------------
+-- Reportes parte I - Repasamos INNER JOIN:
+-- Realizar una consulta de la facturación de e-market. 
+-- Incluir la siguiente información:
+-- ● Id de la factura
+-- ● fecha de la factura
+-- ● nombre de la empresa de correo
+-- ● nombre del cliente
+-- ● categoría del producto vendido
+-- ● nombre del producto
+-- ● precio unitario
+-- ● cantidad
+SELECT 
+    f.FacturaID,
+    FechaFactura,
+    co.Compania,
+    c.Contacto,
+    CategoriaNombre,
+    ProductoNombre,
+    fd.PrecioUnitario,
+    Cantidad
+FROM
+    facturas f
+        INNER JOIN
+    clientes c ON f.clienteID = c.ClienteID
+        INNER JOIN
+    facturadetalle fd ON f.FacturaID = fd.FacturaID 
+        INNER JOIN
+    productos p ON fd.ProductoID = p.ProductoID
+        INNER JOIN
+    correos co ON f.EnvioVia = co.CorreoID
+        INNER JOIN
+    categorias cat ON p.CategoriaID = cat.CategoriaID;
+		
+
+-- Reportes parte II - INNER, LEFT Y RIGHT JOIN:
+-- Listar todas las categorías junto con información de sus productos. Incluir todas
+-- las categorías aunque no tengan productos.
+SELECT 
+    *
+FROM
+    categorias c
+        LEFT JOIN
+    productos p ON c.CategoriaID = p.CategoriaID;
+
+-- Listar la información de contacto de los clientes que no hayan comprado nunca
+-- en emarket.
+SELECT 
+    contacto
+FROM
+    clientes cli
+        LEFT JOIN
+    facturas f ON cli.ClienteID = f.ClienteID
+WHERE f.FacturaID IS NULL;
+
+-- Realizar un listado de productos. Para cada uno indicar su nombre, categoría, y
+-- la información de contacto de su proveedor. Tener en cuenta que puede haber
+-- productos para los cuales no se indicó quién es el proveedor.
+SELECT 
+    ProductoNombre,
+    CategoriaNombre,
+    Contacto
+FROM
+    productos p
+        LEFT JOIN
+    categorias cat ON p.CategoriaID = cat.CategoriaID
+		LEFT JOIN 
+	proveedores pro ON p.ProveedorID = pro.ProveedorID;
+
+-- Para cada categoría listar el promedio del precio unitario de sus productos.
+SELECT 
+    CategoriaNombre, AVG(PrecioUnitario)
+FROM
+    categorias c
+        INNER JOIN
+    productos p ON c.CategoriaID = p.CategoriaID
+GROUP BY CategoriaNombre;
+
+-- Para cada cliente, indicar la última factura de compra. Incluir a los clientes que
+-- nunca hayan comprado en e-market.
+SELECT 
+    Contacto, MAX(FechaFactura)
+FROM
+    clientes c
+        LEFT JOIN
+    facturas f ON c.ClienteID = f.ClienteID
+GROUP BY c.ClienteID;
+
+-- Todas las facturas tienen una empresa de correo asociada (enviovia). Generar un
+-- listado con todas las empresas de correo, y la cantidad de facturas
+-- correspondientes. Realizar la consulta utilizando RIGHT JOIN.
+SELECT 
+    Compania,
+    COUNT(FacturaID)
+FROM
+    facturas f
+        RIGHT JOIN
+    correos c ON f.EnvioVia = c.CorreoID
+GROUP BY Compania;

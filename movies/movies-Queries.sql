@@ -1,6 +1,6 @@
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- Ejercitación opcional I
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- SELECT
 -- Mostrar todos los registros de la tabla de movies.
 SELECT 
@@ -34,7 +34,8 @@ FROM
     movies_db.movies
 WHERE
     rating > 7.5 AND awards > 2;
--- Mostrar el título de las películas y el rating ordenadas por rating en forma ascendente.
+-- Mostrar el título de las películas y el rating ordenadas por rating en forma
+-- ascendente.
 SELECT 
     title, rating
 FROM
@@ -65,11 +66,12 @@ WHERE
     release_date
         AND release_date BETWEEN '2004-01-01' AND '2008-12-31';
         
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- Ejercitación opcional II
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- Alias, limit y offset
--- Mostrar el título de todas las series y usar alias para que el nombre del campo este en español.
+-- Mostrar el título de todas las series y usar alias para que el nombre del 
+-- campo este en español.
 SELECT 
     title AS 'titulo'
 FROM
@@ -112,9 +114,9 @@ SELECT
 FROM
     movies_db.actors;
     
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- Ejercitación opcional III
--- ----------------------------------------------------------
+-- -------------------------------------------------------------------------------
 -- Funciones de agregación, GROUP BY y HAVING
 -- ¿Cuántas películas hay?
 SELECT 
@@ -150,3 +152,34 @@ FROM
     `movies_db`.`movies`
 GROUP BY genre_id
 HAVING SUM(awards) > 5;
+
+-- -------------------------------------------------------------------------------
+-- Ejercitación opcional IV
+-- -------------------------------------------------------------------------------
+-- Utilizando la base de datos de movies, queremos conocer, por un lado, los
+-- títulos y el nombre del género de todas las series de la base de datos.
+SELECT 
+    title serie, genres.name genero
+FROM
+    series
+        INNER JOIN
+    genres ON series.genre_id = genres.id;
+
+-- Por otro, necesitamos listar los títulos de los episodios junto con el nombre y
+-- apellido de los actores que trabajan en cada uno de ellos.
+SELECT 
+    *
+FROM
+    episodes
+        INNER JOIN
+    actors ON episodes. = actors.id;
+
+-- Para nuestro próximo desafío, necesitamos obtener a todos los actores o
+-- actrices (mostrar nombre y apellido) que han trabajado en cualquier película
+-- de la saga de La Guerra de las galaxias.
+
+
+-- Crear un listado a partir de la tabla de películas, mostrar un reporte de la
+-- cantidad de películas por nombre de género.
+
+
