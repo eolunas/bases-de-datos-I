@@ -154,7 +154,7 @@ GROUP BY genre_id
 HAVING SUM(awards) > 5;
 
 -- -------------------------------------------------------------------------------
--- Ejercitación opcional IV
+-- Ejercitación adicional - Bases de datos IV
 -- -------------------------------------------------------------------------------
 -- Utilizando la base de datos de movies, queremos conocer, por un lado, los
 -- títulos y el nombre del género de todas las series de la base de datos.
@@ -168,18 +168,38 @@ FROM
 -- Por otro, necesitamos listar los títulos de los episodios junto con el nombre y
 -- apellido de los actores que trabajan en cada uno de ellos.
 SELECT 
-    *
+    episodes.title "Titulo episodio",
+    actors.first_name Nombre,
+    actors.last_name Apellido
 FROM
     episodes
-        INNER JOIN
-    actors ON episodes. = actors.id;
+        LEFT JOIN
+    actor_episode ON episodes.id = actor_episode.episode_id
+        LEFT JOIN
+    actors ON actor_episode.actor_id = actors.id;
 
 -- Para nuestro próximo desafío, necesitamos obtener a todos los actores o
 -- actrices (mostrar nombre y apellido) que han trabajado en cualquier película
 -- de la saga de La Guerra de las galaxias.
-
+SELECT 
+    actors.first_name Nombre,
+    actors.last_name Apellido,
+    movies.title Titulo
+FROM
+    actors
+        LEFT JOIN
+    actor_movie ON actors.id = actor_movie.actor_id
+        LEFT JOIN
+    movies ON actor_movie.movie_id = movies.id
+WHERE
+    movies.title LIKE '%Guerra%';
 
 -- Crear un listado a partir de la tabla de películas, mostrar un reporte de la
 -- cantidad de películas por nombre de género.
-
-
+SELECT 
+    genres.name, COUNT(*)
+FROM
+    movies
+        LEFT JOIN
+    genres ON movies.genre_id = genres.id
+GROUP BY genres.name;

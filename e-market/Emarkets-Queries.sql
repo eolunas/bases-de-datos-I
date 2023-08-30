@@ -462,13 +462,14 @@ FROM
         INNER JOIN
     clientes c ON f.clienteID = c.ClienteID
         INNER JOIN
-    facturadetalle fd ON f.FacturaID = fd.FacturaID 
+    facturadetalle fd ON f.FacturaID = fd.FacturaID
         INNER JOIN
     productos p ON fd.ProductoID = p.ProductoID
         INNER JOIN
     correos co ON f.EnvioVia = co.CorreoID
         INNER JOIN
-    categorias cat ON p.CategoriaID = cat.CategoriaID;
+    categorias cat ON p.CategoriaID = cat.CategoriaID
+ORDER BY f.FacturaID , CategoriaNombre , ProductoNombre;
 		
 
 -- Reportes parte II - INNER, LEFT Y RIGHT JOIN:
