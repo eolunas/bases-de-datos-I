@@ -119,30 +119,87 @@ LIMIT 5;
 -- Desafio extra - Join: 
 -- ----------------------------------------------------------------------------------------
 -- Obtener los artistas que han actuado en una o más películas.
-
+SELECT DISTINCT
+    actor.first_name Nombre,
+    actor.last_name Apellido
+FROM
+    actor
+        LEFT JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+        LEFT JOIN
+    film ON film_actor.film_id = film.film_id
+WHERE film.film_id IS NOT NULL;
 
 -- Obtener las películas donde han participado más de un artista según nuestra base de datos.
-
+SELECT DISTINCT
+    film.title Titulo,
+    COUNT(*) Actores
+FROM
+    actor
+        RIGHT JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+        RIGHT JOIN
+    film ON film_actor.film_id = film.film_id
+GROUP BY film.title
+HAVING Actores > 1
+ORDER BY Actores;
 
 -- Obtener aquellos artistas que han actuado en alguna película, incluso aquellos que aún 
 -- no lo han hecho, según nuestra base de datos.
-
+SELECT DISTINCT
+    CONCAT(actor.first_name, " ", actor.last_name) NombreActor
+FROM
+    actor
+        LEFT JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+        LEFT JOIN
+    film ON film_actor.film_id = film.film_id;
 
 -- Obtener las películas que no se le han asignado artistas en nuestra base de datos.
-
+SELECT 
+    film.title Titulo,
+    actor.actor_id
+FROM
+    film
+        LEFT JOIN
+    film_actor ON film.film_id = film_actor.film_id
+        LEFT JOIN
+    actor ON film_actor.actor_id = actor.actor_id
+WHERE actor.actor_id IS NULL;
 
 -- Obtener aquellos artistas que no han actuado en alguna película, según nuestra base de datos.
-
+SELECT DISTINCT
+    CONCAT(actor.first_name, " ", actor.last_name) NombreActor
+FROM
+    actor
+        LEFT JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+        LEFT JOIN
+    film ON film_actor.film_id = film.film_id
+WHERE film.film_id IS NULL;
 
 -- Obtener aquellos artistas que han actuado en dos o más películas según nuestra base de datos.
-
+SELECT DISTINCT
+    CONCAT(actor.first_name, ' ', actor.last_name) NombreActor,
+    COUNT(*) Peliculas
+FROM
+    actor
+        LEFT JOIN
+    film_actor ON actor.actor_id = film_actor.actor_id
+        LEFT JOIN
+    film ON film_actor.film_id = film.film_id
+GROUP BY NombreActor
+HAVING 
+    Peliculas > 1
+ORDER BY Peliculas;
 
 -- Obtener aquellas películas que tengan asignado uno o más artistas, incluso aquellas que 
 -- aún no le han asignado un artista en nuestra base de datos.
-
-
-
-
-
-
-
+SELECT DISTINCT
+    film.title Titulo
+FROM
+    film
+        LEFT JOIN
+    film_actor ON film.film_id = film_actor.film_id
+        LEFT JOIN
+    actor ON film_actor.actor_id = actor.actor_id;
