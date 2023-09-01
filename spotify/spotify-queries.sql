@@ -1,0 +1,148 @@
+-- ---------------------------------------------------------------------------
+-- Realizar los siguientes informes: 
+-- ---------------------------------------------------------------------------
+-- Mostrar el nombre de usuario y contar la cantidad de playlist que tiene.
+SELECT 
+    u.nombreusuario, COUNT(*) playlist
+FROM
+    usuario u
+        INNER JOIN
+    playlist p ON u.idUsuario = p.idusuario
+GROUP BY u.nombreusuario; 
+
+-- Generar un reporte, donde se muestre el método de pago , la cantidad de 
+-- operaciones que se realizaron con cada uno y el importe total.
+SELECT 
+    TipoFormaPago, COUNT(idPagos), SUM(Importe)
+FROM
+    datospagoxusuario dp
+        INNER JOIN
+    tipoformapago tp ON dp.idTipoFormaPago = tp.idTipoFormaPago
+        INNER JOIN
+    pagos p ON dp.idDatosPagoxUsuario = p.IdDatosPagoxUsuario
+GROUP BY TipoFormaPago;
+
+-- Listar las canciones que tienen los artistas cuyo nombre contiene la 
+-- letra “r” y el pertenecen al código de género 20. 
+SELECT 
+    c.titulo, gc.IdGenero, ar.Nombre
+FROM
+    cancion c
+        INNER JOIN
+    album a ON c.IdAlbum = a.idAlbum
+        INNER JOIN
+    artista ar ON a.idArtista = ar.idArtista
+    LEFT JOIN 
+    generoxcancion gc ON c.idCancion = gc.idCancion
+WHERE ar.Nombre LIKE "%r%" AND gc.IdGenero = 20;
+
+-- Listar todos los usuarios que que pagaron con efectivo y la fecha de 
+-- pago sea del 2020.
+SELECT 
+    u.nyap nombre, EXTRACT(YEAR FROM p.fechaPago) fecha_pago, tp.TipoFormaPago
+FROM
+    usuario u
+        INNER JOIN
+    datospagoxusuario dpu ON u.idUsuario = dpu.idusuario
+        INNER JOIN
+    pagos p ON dpu.idDatosPagoxUsuario = p.IdDatosPagoxUsuario
+        INNER JOIN
+    tipoformapago tp ON dpu.idTipoFormaPago = tp.idTipoFormaPago
+WHERE
+    tp.TipoFormaPago = 'Efectivo' AND EXTRACT(YEAR FROM p.fechaPago) = '2020';
+	
+-- Generar un reporte de todas las canciones, cuyo álbum no posee imagen 
+-- de portada.
+SELECT 
+    c.titulo, al.imagenportada
+FROM
+    cancion c
+        INNER JOIN
+    album al ON c.IdAlbum = al.idAlbum
+WHERE
+    al.imagenportada IS NULL;
+
+-- Genera un reporte por género e informar la cantidad de canciones que 
+-- posee. Si una canción tiene más de un género, debe ser incluida en 
+-- la cuenta de cada uno de esos géneros.
+SELECT 
+    g.Genero, COUNT(*)
+FROM
+    cancion c
+        INNER JOIN
+    generoxcancion gxc ON c.idCancion = gxc.IdCancion
+        INNER JOIN
+    genero g ON gxc.IdGenero = g.idGenero
+GROUP BY g.Genero;
+
+-- Listar todos las playlist que no están en estado activo y a que 
+-- usuario pertenecen , ordenado por la fecha de eliminación.
+SELECT 
+    pl.titulo,
+    u.nyap,
+    pl.Fechaeliminada
+FROM
+    playlist pl
+        INNER JOIN
+    usuario u ON pl.idusuario = u.idUsuario
+WHERE pl.idestado = 2
+ORDER BY pl.Fechaeliminada;
+
+-- Generar un reporte que muestre por tipo de usuario, la cantidad de
+-- usuarios que posee.
+SELECT 
+    tu.TipoUsuario, COUNT(*) cantidad
+FROM
+    usuario u
+        INNER JOIN
+    tipousuario tu ON u.IdTipoUsuario = tu.idTipoUsuario
+GROUP BY tu.TipoUsuario;
+
+-- Listar la suma total obtenida por cada tipo de suscripción, en el
+-- periodo del 01-01-2020 al 31-12-2020.
+SELECT 
+    tu.TipoUsuario, SUM(p.Importe) total
+FROM
+    suscripcion s
+        INNER JOIN
+    pagos p ON s.idpagos = p.idPagos
+		INNER JOIN
+	tipousuario tu ON s.IdTipoUsuario = tu.idTipoUsuario
+WHERE s.FechaInicio BETWEEN '2020-01-01' AND '2020-12-31'
+GROUP BY tu.TipoUsuario;
+
+-- Listar el álbum y la discográfica que posea la canción con más 
+-- reproducciones.
+
+
+-- Listar todos los usuarios que no hayan generado una playlist.
+
+-- Listar todas las canciones hayan o no recibido likes (cuántos) y 
+-- aclarar si han sido reproducidas o no. Listar las 15 primeras 
+-- ordenadas como si fueran un Ranking.
+
+
+-- Generar un reporte con el nombre del artista y el nombre de la 
+-- canción que no pertenecen a ninguna lista. 
+
+
+-- Listar todas las canciones, el nombre del artista, la razón social
+-- de la discográfica y  la cantidad de veces que fue reproducida. 
+
+
+-- Listar todas las discográficas, que pertenezcan a Inglaterra y la
+-- cantidad de álbumes que hayan editado. 
+
+
+-- Listar a todos los artistas que no poseen ningún álbum. 
+
+
+-- Listar todos los álbumes que tengan alguna canción que posea más 
+-- de un género.
+
+
+-- Generar un reporte por usuario , listando las suscripciones que tiene 
+-- o tuvo, el importe que abonó y  los datos de las formas de pago con
+-- que lo realizó.
+
+
