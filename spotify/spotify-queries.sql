@@ -113,18 +113,58 @@ GROUP BY tu.TipoUsuario;
 
 -- Listar el álbum y la discográfica que posea la canción con más 
 -- reproducciones.
-
+SELECT 
+    al.titulo Album,
+    d.nombre Discografia,
+    c.titulo Cancion,
+    c.cantreproduccion Reproducciones
+FROM
+    cancion c
+        LEFT JOIN
+    album al ON al.idAlbum = c.IdAlbum
+        INNER JOIN
+    discografica d ON d.idDiscografica = al.iddiscografica
+ORDER BY c.cantreproduccion DESC
+LIMIT 1;
 
 -- Listar todos los usuarios que no hayan generado una playlist.
+SELECT 
+    *
+FROM
+    usuario u
+        LEFT JOIN
+    playlist pl ON pl.idusuario = u.idUsuario
+WHERE pl.idestado IS NULL;
 
 -- Listar todas las canciones hayan o no recibido likes (cuántos) y 
 -- aclarar si han sido reproducidas o no. Listar las 15 primeras 
 -- ordenadas como si fueran un Ranking.
-
+SELECT 
+    c.titulo,
+    COALESCE(SUM(c.cantlikes), 0) Likes,
+    CASE
+        WHEN c.cantreproduccion <= 0 THEN 'No Reproducida'
+        WHEN c.cantreproduccion > 0 THEN 'Reproducida'
+    END AS Estado
+FROM
+    cancion c
+GROUP BY c.idCancion
+ORDER BY Likes DESC
+LIMIT 15;
 
 -- Generar un reporte con el nombre del artista y el nombre de la 
 -- canción que no pertenecen a ninguna lista. 
-
+SELECT 
+    ar.Nombre, c.titulo, plxc.IdPlaylist
+FROM
+    cancion c
+        LEFT JOIN
+    playlistxcancion plxc ON plxc.Idcancion = c.idCancion
+		LEFT JOIN
+	album al ON al.idAlbum = c.IdAlbum
+		LEFT JOIN 
+	artista ar ON ar.idArtista = al.idArtista
+WHERE plxc.IdPlaylist IS NULL;
 
 -- Listar todas las canciones, el nombre del artista, la razón social
 -- de la discográfica y  la cantidad de veces que fue reproducida. 
@@ -135,7 +175,13 @@ GROUP BY tu.TipoUsuario;
 
 
 -- Listar a todos los artistas que no poseen ningún álbum. 
-
+SELECT 
+    ar.nombre, al.titulo
+FROM
+    artista ar
+        LEFT JOIN
+    album al ON al.idArtista = ar.idArtista
+WHERE al.idAlbum IS NULL;
 
 -- Listar todos los álbumes que tengan alguna canción que posea más 
 -- de un género.
