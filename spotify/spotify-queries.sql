@@ -144,7 +144,7 @@ SELECT
     COALESCE(SUM(c.cantlikes), 0) Likes,
     CASE
         WHEN c.cantreproduccion <= 0 THEN 'No Reproducida'
-        WHEN c.cantreproduccion > 0 THEN 'Reproducida'
+        ELSE 'Reproducida'
     END AS Estado
 FROM
     cancion c
@@ -168,11 +168,34 @@ WHERE plxc.IdPlaylist IS NULL;
 
 -- Listar todas las canciones, el nombre del artista, la razón social
 -- de la discográfica y  la cantidad de veces que fue reproducida. 
-
+    SELECT 
+    c.titulo Cancion,
+    ar.Nombre Artista,
+    d.nombre Discografica,
+    c.cantreproduccion Reproducciones
+FROM
+    cancion c
+        LEFT JOIN
+    album al ON al.idAlbum = c.IdAlbum
+        LEFT JOIN
+    artista ar ON ar.idArtista = al.idArtista
+        LEFT JOIN
+    discografica d ON d.idDiscografica = al.iddiscografica;
 
 -- Listar todas las discográficas, que pertenezcan a Inglaterra y la
 -- cantidad de álbumes que hayan editado. 
-
+SELECT 
+    d.nombre Discografica,
+    p.Pais Pais,
+    COUNT(al.idAlbum) Albumes
+FROM
+    discografica d
+        LEFT JOIN
+    pais p ON p.idPais = d.idPais
+        LEFT JOIN
+    album al ON al.idAlbum = d.idPais
+GROUP BY Discografica, p.Pais
+HAVING p.Pais = "Inglaterra";
 
 -- Listar a todos los artistas que no poseen ningún álbum. 
 SELECT 
@@ -185,10 +208,37 @@ WHERE al.idAlbum IS NULL;
 
 -- Listar todos los álbumes que tengan alguna canción que posea más 
 -- de un género.
-
+SELECT 
+    al.titulo Album, c.titulo Cancion, COUNT(g.Genero) N_Generos
+FROM
+    album al
+        INNER JOIN
+    cancion c ON c.IdAlbum = al.idAlbum
+        INNER JOIN
+    generoxcancion gxc ON gxc.IdCancion = c.idCancion
+        INNER JOIN
+    genero g ON g.idGenero = gxc.IdGenero
+GROUP BY Album, Cancion
+HAVING N_Generos > 1;
 
 -- Generar un reporte por usuario , listando las suscripciones que tiene 
 -- o tuvo, el importe que abonó y  los datos de las formas de pago con
 -- que lo realizó.
+SELECT 
+    u.nyap Usuario, 
+    s.idSuscripcion "ID Suscripcion",
+    SUM(p.Importe) Importe,
+    tfp.TipoFormaPago
+FROM
+    usuario u
+        LEFT JOIN
+    suscripcion s ON s.idusuario = u.idUsuario
+        LEFT JOIN
+    pagos p ON p.idPagos = s.idpagos
+        LEFT JOIN
+    datospagoxusuario dpu ON dpu.idusuario = u.idUsuario
+        LEFT JOIN
+    tipoformapago tfp ON tfp.idTipoFormaPago = dpu.idTipoFormaPago
+GROUP BY u.nyap, s.idSuscripcion, tfp.TipoFormaPago;
 
 
